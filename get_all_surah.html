@@ -2,16 +2,283 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Get Data Surah</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
 </head>
 
 <body>
-  <h1>List View API Al-Qur'an</h1>
-  <div id="data-container">
-    <ul id="surah-list"></ul>
+  <div class="container">
+    <h1>Al-Qur'an</h1>
+
+    <h2>Informasi Surah</h2>
+    <div id="surah-info">
+      <!-- Informasi surah akan ditampilkan di sini -->
+      <script>
+        var surahList = document.getElementById("surah-list");
+        var surahInfo = document.getElementById("surah-info");
+
+        // URL API untuk mendapatkan data surah
+        var apiUrl = "http://api.alquran.cloud/v1/quran/en.asad";
+
+        // Ambil data surah dari API
+        fetch(apiUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            var surahs = data.data.surahs;
+
+            // Isi elemen select dengan daftar surah
+            surahs.forEach((surah) => {
+              var option = document.createElement("option");
+              option.value = surah.number;
+              option.text = `${surah.number}. ${surah.name} - ${surah.englishName}`;
+              surahList.appendChild(option);
+            });
+
+            // Event listener untuk pemilihan surah
+            surahList.addEventListener("change", function () {
+              var selectedSurahNumber = surahList.value;
+              var selectedSurah = surahs.find(
+                (surah) => surah.number === Number(selectedSurahNumber)
+              );
+
+              if (selectedSurah) {
+                // Tampilkan data surah yang dipilih
+                var surahInfoHTML = `
+                <h3>${selectedSurah.name} (${selectedSurah.englishNameTranslation})</h3>
+                <p>Revelation Type: ${selectedSurah.revelationType}</p>
+                <h4>Ayah Pertama:</h4>
+                <p>${selectedSurah.ayahs[0].text}</p>
+              `;
+                surahInfo.innerHTML = surahInfoHTML;
+              } else {
+                surahInfo.innerHTML = "";
+              }
+            });
+          })
+          .catch((error) => console.error("Gagal", error));
+      </script>
+    </div>
+
+    <h2>Daftar Surah</h2>
+    <select id="surah-list">
+      <!-- Pilihan surah akan ditampilkan di sini -->
+    </select>
+
+    <h2>Daftar Juz</h2>
+    <select id="juz-list">
+      <!-- Pilihan juz akan ditampilkan di sini -->
+      <script>
+        var juzList = document.getElementById("juz-list");
+
+        // Membuat daftar juz mulai dari 1 hingga 3
+        for (var juzNumber = 1; juzNumber <= 3; juzNumber++) {
+          var option = document.createElement("option");
+          option.value = juzNumber;
+          option.text = `Juz ${juzNumber}`;
+          juzList.appendChild(option);
+        }
+      </script>
+    </select>
+
+    <h2>Daftar Bookmark</h2>
+    <ul id="bookmark-list">
+      <!-- Daftar bookmark akan ditampilkan di sini -->
+    </ul>
+
+    <h2>Go to Ayah</h2>
+    <input type="text" id="ayah-input" placeholder="Nomor Ayah" />
+    <button id="search-button">Cari</button>
+
+    <h2>Jumlah Ayat dalam Surah</h2>
+    <div id="ayah-count">Jumlah Ayat dalam Surah yang Dipilih:</div>
+
     <script>
+      // Code for Surah List
+      var surahList = document.getElementById("surah-list");
+      var surahUrl = "http://api.alquran.cloud/v1/quran/en.asad";
+
+      fetch(surahUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          var surahs = data.data.surahs;
+
+          surahs.forEach((surah) => {
+            var option = document.createElement("option");
+            option.value = surah.number;
+            option.text = `${surah.number}. ${surah.name} - ${surah.englishName}`;
+            surahList.appendChild(option);
+          });
+        })
+        .catch((error) => console.error("Gagal", error));
+
+      // Code for Juz List
+      var juzList = document.getElementById("juz-list");
+      var juzUrl = "http://api.alquran.cloud/v1/juz/";
+
+      fetch(juzUrl)
+        .then((response) => response.json())
+        .then((data) => {
+          var juzs = data.data.juzs;
+
+          juzs.forEach((juz) => {
+            var option = document.createElement("option");
+            option.value = juz.number;
+            option.text = `Juz ${juz.number}`;
+            juzList.appendChild(option);
+          });
+        })
+        .catch((error) => console.error("Gagal", error));
+
+      // Code for Search Button
+      var searchButton = document.getElementById("search-button");
+      var ayahInput = document.getElementById("ayah-input");
+      var ayahCount = document.getElementById("ayah-count");
+
+      searchButton.addEventListener("click", function () {
+        var selectedSurahNumber = surahList.value;
+        var selectedJuzNumber = juzList.value;
+        var ayahNumber = ayahInput.value;
+
+        if (!selectedSurahNumber || !selectedJuzNumber || !ayahNumber) {
+          alert("Silakan pilih surah, juz, dan masukkan nomor ayah.");
+          return;
+        }
+
+        var surahUrl =
+          "http://api.alquran.cloud/v1/surah/" + selectedSurahNumber;
+        var juzUrl = "http://api.alquran.cloud/v1/juz/1" + selectedJuzNumber;
+
+        var surahName = "";
+        var juzName = "";
+
+        fetch(surahUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            surahName = data.data.englishName;
+            fetch(juzUrl)
+              .then((response) => response.json())
+              .then((data) => {
+                juzName = data.data.englishName;
+                ayahCount.textContent = `Jumlah Ayat di Surah ${surahName}, Juz ${juzName}: ${ayahNumber}`;
+              })
+              .catch((error) => console.error("Gagal", error));
+          })
+          .catch((error) => console.error("Gagal", error));
+      });
+    </script>
+  </div>
+  <!-- <div class="container">
+    <h1>List View API Al-Qur'an</h1>
+
+    <div id="data-container">
+      <ul id="surah-list"></ul>
+
+    </div>
+    <h2>Daftar Surah</h2>
+    <select id="surah-list">
+      
+      
+    </select>
+
+    <h2>Daftar Juz</h2>
+    <select id="juz-list">
+      
+    </select>
+
+    <h2>Daftar Bookmark</h2>
+    <ul id="bookmark-list">
+      
+    </ul>
+
+    <h2>Go to Ayah</h2>
+    <input type="text" id="ayah-input" placeholder="Nomor Ayah">
+    <button id="search-button">Cari</button>
+
+    <h2>Jumlah Ayat dalam Surah</h2>
+    <div id="ayah-count">Jumlah Ayat dalam Surah yang Dipilih: </div>
+  </div>
+  <div>
+    <script>
+      // Code for Surah List
+      var surahList = document.getElementById('surah-list');
+      var surahUrl = 'http://api.alquran.cloud/v1/quran/en.asad';
+  
+      fetch(surahUrl)
+        .then(response => response.json())
+        .then(data => {
+          var surahs = data.data.surahs;
+  
+          surahs.forEach(surah => {
+            var option = document.createElement('option');
+            option.value = surah.number;
+            option.text = `${surah.number}. ${surah.name} - ${surah.englishName}`;
+            surahList.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Gagal", error));
+      
+      // Code for Juz List
+      var juzList = document.getElementById('juz-list');
+      var juzUrl = 'http://api.alquran.cloud/v1/juz/en.asad';
+  
+      fetch(juzUrl)
+        .then(response => response.json())
+        .then(data => {
+          var juzs = data.data.juzs;
+  
+          juzs.forEach(juz => {
+            var option = document.createElement('option');
+            option.value = juz.number;
+            option.text = `Juz ${juz.number}`;
+            juzList.appendChild(option);
+          });
+        })
+        .catch(error => console.error("Gagal", error));
+  
+      // Code for Search Button
+      var searchButton = document.getElementById('search-button');
+      var ayahInput = document.getElementById('ayah-input');
+      var ayahCount = document.getElementById('ayah-count');
+  
+      searchButton.addEventListener('click', function () {
+        var selectedSurahNumber = surahList.value;
+        var selectedJuzNumber = juzList.value;
+        var ayahNumber = ayahInput.value;
+  
+        if (!selectedSurahNumber || !selectedJuzNumber || !ayahNumber) {
+          alert('Silakan pilih surah, juz, dan masukkan nomor ayah.');
+          return;
+        }
+  
+        var surahUrl = 'http://api.alquran.cloud/v1/surah/' + selectedSurahNumber;
+        var juzUrl = 'http://api.alquran.cloud/v1/juz/' + selectedJuzNumber;
+  
+        var surahName = '';
+        var juzName = '';
+  
+        fetch(surahUrl)
+          .then(response => response.json())
+          .then(data => {
+            surahName = data.data.englishName;
+            fetch(juzUrl)
+              .then(response => response.json())
+              .then(data => {
+                juzName = data.data.englishName;
+                ayahCount.textContent = `Jumlah Ayat di Surah ${surahName}, Juz ${juzName}: ${ayahNumber}`;
+              })
+              .catch(error => console.error('Gagal', error));
+          })
+          .catch(error => console.error('Gagal', error));
+      });
+    </script>
+  </div> -->
+
+  <!-- script get all surah [0]-->
+  <!-- <div>
+    <script>
+      var surahList = document.getElementById('surah-list')
       var url = 'http://api.alquran.cloud/v1/quran/en.asad';
 
       fetch(url)
@@ -23,13 +290,17 @@
           // Iterasi melalui setiap surah dan menambahkannya ke daftar
           surahs.forEach(surah => {
             var listItem = document.createElement('li');
+            var option = document.createElement('option')
+            option.value = surah.number
+            option.text = `${surah.number}. ${surah.name}. ${surah.englishName}`
+            surahList.appendChild(option)
             listItem.textContent = `${surah.number}. ${surah.name} - ${surah.englishName} - ${surah.englishNameTranslation} - ${surah.revelationType} - ${surah.ayahs[0].number} - ${surah.ayahs[0].text} - ${surah.ayahs[0].numberInSurah} - ${surah.ayahs[0].juz} - ${surah.ayahs[0].manzil} - ${surah.ayahs[0].page} - ${surah.ayahs[0].ruku} - ${surah.ayahs[0].hizbQuarter} - ${surah.ayahs[0].sajda}`;
             surahList.appendChild(listItem);
           });
         })
         .catch(error => console.error("Gagal", error));
     </script>
-  </div>
+  </div> -->
 
   <!-- ini get by id -->
   <!-- <div id="data-container">
@@ -57,3 +328,5 @@
 </body>
 
 </html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
