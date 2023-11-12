@@ -8,18 +8,52 @@
 </head>
 
 <body>
+  <h1>List View API Al-Qur'an</h1>
   <div id="data-container">
+    <ul id="surah-list"></ul>
     <script>
-      var url= 'http://api.alquran.cloud/v1/quran/en.asad'
+      var url = 'http://api.alquran.cloud/v1/quran/en.asad';
+
       fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        var dataContainer = document.getElementById('data-container')
-        dataContainer.innerHTML = JSON.stringify(data)
-      })
-      .catch(error => console.error("Gagal", error))
+        .then(response => response.json())
+        .then(data => {
+          var surahList = document.getElementById('surah-list');
+          var surahs = data.data.surahs;
+
+          // Iterasi melalui setiap surah dan menambahkannya ke daftar
+          surahs.forEach(surah => {
+            var listItem = document.createElement('li');
+            listItem.textContent = `${surah.number}. ${surah.name} - ${surah.englishName} - ${surah.englishNameTranslation} - ${surah.revelationType} - ${surah.ayahs[0].number} - ${surah.ayahs[0].text} - ${surah.ayahs[0].numberInSurah} - ${surah.ayahs[0].juz} - ${surah.ayahs[0].manzil} - ${surah.ayahs[0].page} - ${surah.ayahs[0].ruku} - ${surah.ayahs[0].hizbQuarter} - ${surah.ayahs[0].sajda}`;
+            surahList.appendChild(listItem);
+          });
+        })
+        .catch(error => console.error("Gagal", error));
     </script>
   </div>
+
+  <!-- ini get by id -->
+  <!-- <div id="data-container">
+    <script>
+      var url = 'http://api.alquran.cloud/v1/quran/en.asad'
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          var dataContainer = document.getElementById('data-container')
+          var surah = [
+            data.data.surahs[0].name,
+            data.data.surahs[0].ayahs[0].number,
+            data.data.surahs[0].ayahs[0].text,
+            data.data.surahs[0].ayahs[0].numberInSurah,
+            data.data.surahs[0].ayahs[0].juz
+          ]
+
+          dataContainer.innerHTML = 'Daftar :' + surah
+          // tampilkan json preaty
+          // console.log("Nama Surah Pertama: " + surahName)
+        })
+        .catch(error => console.error("Gagal", error))
+    </script>
+  </div> -->
 </body>
 
 </html>
