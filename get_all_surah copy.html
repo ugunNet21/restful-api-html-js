@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contoh Mengambil Data dari URL API</title>
+</head>
+<body>
+  <div id="data-view">
+    <script>
+      // URL API yang akan diambil data
+      var apiUrl = 'http://api.alquran.cloud/v1/quran/en.asad';
+  
+      // Membuat permintaan GET ke URL API menggunakan Fetch API
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          // Menampilkan data di dalam elemen dengan ID "data-container"
+          var dataContainer = document.getElementById('data-view');
+          dataContainer.innerHTML = JSON.stringify(data);
+        })
+        .catch(error => console.error('Gagal mengambil data:', error));
+    </script>
+  </div>
+
+ 
+</body>
+</html>

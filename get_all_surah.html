@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get Data Surah</title>
+</head>
+
+<body>
+  <div id="data-container">
+    <script>
+      var url= 'http://api.alquran.cloud/v1/quran/en.asad'
+      fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        var dataContainer = document.getElementById('data-container')
+        dataContainer.innerHTML = JSON.stringify(data)
+      })
+      .catch(error => console.error("Gagal", error))
+    </script>
+  </div>
+</body>
+
+</html>
